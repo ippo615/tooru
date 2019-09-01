@@ -1,4 +1,5 @@
 
+/*
 .board {
 	display: grid;
 	grid-template-columns: 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px;
@@ -24,6 +25,7 @@
 	z-index: 1;
 	background-color: #666;
 }
+*/
 /*
 .north {
 	transform: rotate(270deg);

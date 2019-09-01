@@ -159,6 +159,40 @@ class Board{
 		}
 		return rows.join('\n');
 	}
+	generateCss(){
+		let gridSize = '32px'; // chosen
+		let pieceHeight = '8px'; // chosen
+		let pieceTop = '12px'; // (gridSize - pieceHeight)*0.5
+		let pieceLeft = '16px'; // gridSize * 0.5
+		
+		let css = '';
+		css += '.board {';
+		css += '	display: grid;';
+		css += '	grid-template-columns: '+(new Array(this.width)).fill(gridSize).join(' ')+';';
+		css += '	grid-template-rows: '+(new Array(this.height)).fill(gridSize).join(' ')+';';
+		css += '	grid-gap: 10px;';
+		css += '	background-color: #FFF;';
+		css += '	padding: 10px;';
+		css += '}';
+		css += '.grid-space {';
+		css += '	position: relative;';
+		css += '	border-radius: 50%;';
+		css += '	width: '+gridSize+';';
+		css += '	height: '+gridSize+';';
+		css += '	background-color: #666;';
+		css += '}';
+		css += '.piece {';
+		css += '	position: absolute;';
+		css += '	left: '+pieceLeft+';';
+		css += '	top: '+pieceTop+';';
+		css += '	width: '+gridSize+';';
+		css += '	height: '+pieceHeight+';';
+		css += '	transform-origin: left center;';
+		css += '	z-index: 1;';
+		css += '	background-color: #666;';
+		css += '}';
+		return css;
+	}
 }
 
 $(function(){
@@ -169,8 +203,8 @@ $(function(){
 	PLAYER_COLORS[PLAYERS.D] = '#BB0';
 	PLAYER_COLORS[PLAYERS.NONE] = '#888';
 
-	let w = 20;
-	let h = 20;
+	let w = 15;
+	let h = 15;
 
 	let b = new Board(w,h);
 	b.generate();
@@ -183,6 +217,7 @@ $(function(){
 	b.propogateFrom(0,h-1);
 	b.propogateFrom(w-1,0);
 	$('#game').html( b.asHtmlString() );
+	$('#style-holder').html( '<style>'+b.generateCss()+'</style>' );
 
 	function copyBoard(b){
 		let b2 = new Board(b.width,b.height);
