@@ -1,0 +1,52 @@
+
+.board {
+	display: grid;
+	grid-template-columns: 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px;
+	grid-template-rows: 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px 32px;
+	grid-gap: 10px;
+	background-color: #FEE;
+	padding: 10px;
+}
+.grid-space {
+	position: relative;
+	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	background-color: #666;
+}
+.piece {
+	position: absolute;
+	left: 16px;
+	top: 12px;
+	width: 32px;
+	height: 8px;
+	transform-origin: left center;
+	z-index: 1;
+	background-color: #666;
+}
+/*
+.north {
+	transform: rotate(270deg);
+}
+.south {
+	transform: rotate(90deg);
+}
+.east {
+	transform: rotate(0deg);
+}
+.west {
+	transform: rotate(180deg);
+}
+.player1 {
+	background-color: #f00;
+}
+.player2 {
+	background-color: #00f;
+}
+.player3 {
+	background-color: #0A0;
+}
+.player4 {
+	background-color: #BB0;
+}
+*/

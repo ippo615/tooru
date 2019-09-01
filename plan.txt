@@ -1,0 +1,24 @@
+
+# Chain Reaction
+
+## Architecture
+
+### Style A
+
+Use anime.js and jQuery.
+Game Object: {
+	board: [ array of pieces ]
+}
+Piece: 
+
+GameStates:
+ Input -> Animation -> Input
+
+On Input Game State changes
+Then animation causes the state to change further
+
+
+Game is event driven
+ - start of turn board is rendered
+ - pieces of the current user can be clicked
+ - onclick 
