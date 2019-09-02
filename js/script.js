@@ -1,29 +1,6 @@
 // ←↑→↓
 'use strict';
 
-const DIRECTIONS = Object.freeze({
-	NORTH: 270,
-	SOUTH: 90,
-	EAST: 0,
-	WEST: 180,
-	NONE: 0
-});
-const CCW_SEQUENCE = Object.freeze([ DIRECTIONS.NORTH, DIRECTIONS.WEST, DIRECTIONS.SOUTH, DIRECTIONS.EAST ]);
-const CW_SEQUENCE = Object.freeze([ DIRECTIONS.NORTH, DIRECTIONS.EAST, DIRECTIONS.SOUTH, DIRECTIONS.WEST ]);
-
-const PLAYERS = Object.freeze({
-	A: 'player1',
-	B: 'player2',
-	C: 'player3',
-	D: 'player4',
-	NONE: 'none'
-});
-
-function getRandomDirection(){
-	let keys = Object.keys( DIRECTIONS );
-	return DIRECTIONS[keys[Math.floor(Math.random()*keys.length)]];
-}
-
 class Point{
 	constructor( x, y ){
 		this.x = x;
@@ -33,8 +10,7 @@ class Point{
 
 class Piece{
 	constructor(){
-		//this.direction = DIRECTIONS.NONE;
-		this.direction = getRandomDirection();
+		this.direction = DIRECTIONS.EAST;
 		this.player = PLAYERS.NONE;
 		this.visited = false;
 	}
@@ -68,10 +44,10 @@ class Board{
 		let dx = x2 - x1;
 		let dy = y2 - y1;
 		const allowed_pairs = {
-			'1,0': [0,180], // dx=1, dy=0, p1.d==0 or p2.d==180
-			'0,1': [90,270],
-			'-1,0': [180,0],
-			'0,-1': [270,90]
+			'1,0': [ DIRECTIONS.EAST, DIRECTIONS.WEST ], // dx=1, dy=0, p1.d==0 or p2.d==180
+			'0,1': [ DIRECTIONS.SOUTH, DIRECTIONS.NORTH ],
+			'-1,0': [ DIRECTIONS.WEST, DIRECTIONS.EAST ],
+			'0,-1': [ DIRECTIONS.NORTH, DIRECTIONS.SOUTH ]
 		};
 		let dxdy = dx+','+dy;
 		let options = allowed_pairs[dxdy];
@@ -198,21 +174,19 @@ class BoardRenderSimpleString extends BoardAnalyzer {
 	constructor( board ){
 		super( board );
 		
-		this.players = {
-			'none': 0b00000,
-			'player1': 0b00100,
-			'player2': 0b01000,
-			'player3': 0b01100,
-			'player4': 0b10000
-		};
+		this.players = {};
+		this.players[PLAYERS.NONE] = 0b00000;
+		this.players[PLAYERS.A]    = 0b00100;
+		this.players[PLAYERS.B]    = 0b01000;
+		this.players[PLAYERS.C]    = 0b01100;
+		this.players[PLAYERS.D]    = 0b10000;
 		
-		this.directions = {
-			0  : 0b00000,
-			90 : 0b00001,
-			180: 0b00010,
-			270: 0b00011
-		};
-		
+		this.directions = {};
+		this.directions[DIRECTIONS.NORTH] = 0b00000;
+		this.directions[DIRECTIONS.SOUTH] = 0b00001;
+		this.directions[DIRECTIONS.EAST]  = 0b00010;
+		this.directions[DIRECTIONS.WEST]  = 0b00011;
+
 		this.characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
 	}
 	
@@ -382,8 +356,20 @@ $(function(){
 	let w = 10;
 	let h = 10;
 
+	// Create a new board with each piece pointing in a random direction
 	let b = new Board(w,h);
 	b.generate();
+	function getRandomDirection(){
+		let keys = Object.keys( DIRECTIONS );
+		return DIRECTIONS[keys[Math.floor(Math.random()*keys.length)]];
+	}
+	for( let y=0, h=b.height; y<h; y+=1 ){
+		for( let x=0, w=b.width; x<w; x+=1 ){
+			b.getPieceAt(x,y).direction = getRandomDirection();
+		}
+	}
+	
+	// Set the 4 corners to a different color and connect them
 	b.getPieceAt(0,0).player = PLAYERS.A;
 	b.getPieceAt(w-1,h-1).player = PLAYERS.B;
 	b.getPieceAt(0,h-1).player = PLAYERS.C;
@@ -392,17 +378,22 @@ $(function(){
 	b.applyConnection(w-1,h-1);
 	b.applyConnection(0,h-1);
 	b.applyConnection(w-1,0);
+	
+	// Build the board as html
 	let boarderRender = new BoardHtmlRender(b);
 	$('#game').html( boarderRender.asHtmlString() );
 	$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
 
+	// Debugging to make sure saving/loading works
 	let boardString = (new BoardRenderSimpleString(b)).asSimpleString();
 	let boardFromString = (new BoardRenderSimpleString(b)).fromSimpleString(boardString);
 	console.info( boardFromString );
 
+	// Debugging to make sure chain analyzers work
 	var b2 = new BoardAnalyzerChainSize(b);
 	console.info( b2.data );
 
+	// Initial animation to show the board being setup/created
 	for( let y=0, h=b.height; y<h; y+=1 ){
 		for( let x=0, w=b.width; x<w; x+=1 ){
 			let piece = b.getPieceAt(x,y);
@@ -422,6 +413,9 @@ $(function(){
 	// Listen to this next time:
 	// https://www.youtube.com/watch?v=BVeI1FPh6i8
 	
+	// When a piece is clicked:
+	//  1. rotate it 90 degrees clockwise
+	//  2. propogate its color to all the connected pieces
 	$('.board').on('click','.grid-space',function(e){
 		let target = $(e.target).closest('.grid-space');
 		let piece = target.find('.piece')[0];
@@ -474,4 +468,3 @@ $(function(){
 	});
 });
 
-// TODO: simplify direction infomation (ie remove no-longer-used code)
