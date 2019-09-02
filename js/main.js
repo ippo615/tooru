@@ -4,9 +4,19 @@ $(function(){
 	let PLAYER_COLORS = {};
 	PLAYER_COLORS[PLAYERS.A] = '#F00';
 	PLAYER_COLORS[PLAYERS.B] = '#00F';
-	PLAYER_COLORS[PLAYERS.C] = '#0A0';
-	PLAYER_COLORS[PLAYERS.D] = '#BB0';
+	PLAYER_COLORS[PLAYERS.C] = '#BB0';
+	PLAYER_COLORS[PLAYERS.D] = '#0A0';
 	PLAYER_COLORS[PLAYERS.NONE] = '#888';
+	// For "cleaner" or simpler style use the same dark and light colors
+	// let PLAYER_CONNECTOR_COLORS = PLAYER_COLORS;
+	
+	let PLAYER_CONNECTOR_COLORS = {};
+	PLAYER_CONNECTOR_COLORS[PLAYERS.A] = '#800';
+	PLAYER_CONNECTOR_COLORS[PLAYERS.B] = '#008';
+	PLAYER_CONNECTOR_COLORS[PLAYERS.C] = '#550';
+	PLAYER_CONNECTOR_COLORS[PLAYERS.D] = '#060';
+	PLAYER_CONNECTOR_COLORS[PLAYERS.NONE] = '#888';
+	
 
 	let w = 10;
 	let h = 10;
@@ -55,7 +65,7 @@ $(function(){
 			anime({
 				targets: '#piece-'+x+'-'+y,
 				rotate: piece.direction,
-				background: PLAYER_COLORS[piece.player],
+				background: PLAYER_CONNECTOR_COLORS[piece.player],
 				duration: 1200,
 				delay: x*500+Math.random()*500
 			});
@@ -84,18 +94,30 @@ $(function(){
 			rotate: b.getPieceAt(x,y).direction+90,
 			// when the rotation animation finishes, update the board state
 			complete: function(){
-				// New
 				b.activatePieceAt(x,y);
 				let depthMap = b.applyConnection(x,y);
 				for( let depth = 0, maxDepth = depthMap.length; depth < maxDepth; depth += 1 ){
 					let points = depthMap[depth];
 					for( let point of points ){
 						anime({
-							targets: ['#piece-'+point.x+'-'+point.y, '#grid-space-'+point.x+'-'+point.y],
+							targets: ['#grid-space-'+point.x+'-'+point.y],
 							background: PLAYER_COLORS[b.getPieceAt( point.x, point.y ).player],
 							delay: 75*depth,
+						});
+						anime({
+							targets: ['#piece-'+point.x+'-'+point.y],
+							background: PLAYER_CONNECTOR_COLORS[b.getPieceAt( point.x, point.y ).player],
+							delay: 75*depth,
 							complete: function(){
-								if( anime.running.length == 0 ){
+								// anime.running.length will never be 0. After the animation
+								// is `.complete()ed` then `running.length` is decreased.
+								// It also happens that multiple animations can finish at the
+								// same time. So the laste animations to finish are the ones at
+								// the end of the chain (which are the deepest in the depthMap). 
+								// This means that we should check if the number of running
+								// animations is equal to the length of the last group of the
+								// depthMap.
+								if( anime.running.length == depthMap[maxDepth-1].length ){
 									// after all the other stuff is done:
 									// update board state (rotations)
 									let boarderRender = new BoardRenderHtml(b);
@@ -104,9 +126,9 @@ $(function(){
 									for( let y=0, h=b.height; y<h; y+=1 ){
 										for( let x=0, w=b.width; x<w; x+=1 ){
 											let p = b.getPieceAt(x,y);
-											anime.set('#piece-'+x+'-'+y, {
+											anime.set( '#piece-'+x+'-'+y, {
 												rotate: p.direction,
-												background: PLAYER_COLORS[p.player]
+												background: PLAYER_CONNECTOR_COLORS[p.player]
 											});
 											anime.set( '#grid-space-'+x+'-'+y, {
 												background: PLAYER_COLORS[p.player]

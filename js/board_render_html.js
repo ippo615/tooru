@@ -27,6 +27,7 @@ class BoardRenderHtml extends BoardAnalyzer {
 	generateCss(){
 		let gridSize = '32px'; // chosen
 		let pieceHeight = '8px'; // chosen
+		let pieceLength = '46px'; // chosen
 		let pieceTop = '12px'; // (gridSize - pieceHeight)*0.5
 		let pieceLeft = '16px'; // gridSize * 0.5
 		
@@ -48,13 +49,15 @@ class BoardRenderHtml extends BoardAnalyzer {
 		css += '}';
 		css += '.piece {';
 		css += '	position: absolute;';
+		css += '	border-radius: 4px;';
 		css += '	left: '+pieceLeft+';';
 		css += '	top: '+pieceTop+';';
-		css += '	width: '+gridSize+';';
+		css += '	width: '+pieceLength+';';
 		css += '	height: '+pieceHeight+';';
 		css += '	transform-origin: left center;';
 		css += '	z-index: 1;';
 		css += '	background-color: #666;';
+		css += '	pointer-events: none;';
 		css += '}';
 		return css;
 	}
