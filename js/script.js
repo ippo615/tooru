@@ -147,7 +147,6 @@ class Board{
 		let player = this.getPieceAt(x,y).player;
 		let dMap = [[]];
 		let depthMap = this.propogationArraysToDelayMap( this.propogateFrom(x,y), dMap, 0 );
-		console.info( depthMap );
 		this.depthMapSetPlayer( depthMap, player );
 		return depthMap;
 	}
@@ -236,6 +235,46 @@ class Board{
 	}
 }
 
+class BoardAnalyzer {
+	constructor( board ){
+		this.board = this.copyBoard(board);
+		this.width = this.board.width;
+		this.height = this.board.height;
+	}
+	copyBoard(b){
+		let b2 = new Board(b.width,b.height);
+		b2.generate();
+		for( let y=0, h=b.height; y<h; y+=1 ){
+			for( let x=0, w=b.width; x<w; x+=1 ){
+				b2.grid[y][x] = new Piece( );
+				b2.grid[y][x].player = b.grid[y][x].player;
+				b2.grid[y][x].direction = b.grid[y][x].direction;
+			}
+		}
+		return b2;
+	}
+}
+
+class BoardAnalyzerChainSize extends BoardAnalyzer{
+	// This does not work as expected because the propogation stops when the same color is reached
+	// So when analyzing chain sizes the chains will always connect to the same color so they will
+	// stop immediately.
+	constructor( board ){
+		super( board );
+		let rows = (new Array(this.height)).fill(undefined).map( _ => new Array(this.width) );
+		for( let y=0, h=this.height; y<h; y+=1 ){
+			for( let x=0, w=this.width; x<w; x+=1 ){
+				rows[y][x] = this.computeChainSizeAt(x,y);
+			}
+		}
+		this.data = rows;
+	}
+	computeChainSizeAt(x,y){
+		this.board.clearVisitedList();
+		let propogationArray = this.board.propogateFrom(x,y);
+		return this.board.propogationArraysCountPieces(propogationArray);
+	}
+}
 
 $(function(){
 	let PLAYER_COLORS = {};
@@ -260,6 +299,9 @@ $(function(){
 	b.applyConnection(w-1,0);
 	$('#game').html( b.asHtmlString() );
 	$('#style-holder').html( '<style>'+b.generateCss()+'</style>' );
+
+	var b2 = new BoardAnalyzerChainSize(b);
+	console.info( b2.data );
 
 	for( let y=0, h=b.height; y<h; y+=1 ){
 		for( let x=0, w=b.width; x<w; x+=1 ){
