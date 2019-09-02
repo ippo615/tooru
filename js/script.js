@@ -36,6 +36,7 @@ class Piece{
 		//this.direction = DIRECTIONS.NONE;
 		this.direction = getRandomDirection();
 		this.player = PLAYERS.NONE;
+		this.visited = false;
 	}
 	asString(){
 		return ''+this.direction;
@@ -47,6 +48,7 @@ class Board{
 		this.grid;
 		this.width = width;
 		this.height = height;
+		this.visitedList = [];
 		this.generate();
 	}
 	
@@ -82,21 +84,25 @@ class Board{
 		return false;
 	}
 	propogateConnection(x,y,dx,dy){
-		let player = this.getPieceAt(x,y).player;
+		// let player = this.getPieceAt(x,y).player;
 		if( x+dx < 0 ){ return []; }
 		if( this.width <= x+dx ){ return []; }
 		if( y+dy < 0 ){ return []; }
 		if( this.height <= y+dy ){ return []; }
 		if( this.areConnected(x,y,x+dx,y+dy) ){
 			let connected_piece = this.getPieceAt(x+dx,y+dy);
-			if( connected_piece.player != player ){
-				connected_piece.player = player;
+			if( connected_piece.visited == false ){
 				return this.propogateFrom(x+dx,y+dy);
 			}
 		}
 		return [];
 	}
 	propogateFrom(x,y){
+		// Remember that we've been to this piece
+		let piece = this.getPieceAt(x,y);
+		piece.visited = true;
+		this.visitedList.push( piece );
+		// Check the surronding 4 pieces (N,S,E,W)
 		let results = [ new Point(x,y) ];
 		let connection = this.propogateConnection( x,y, 1, 0 );
 		if( connection.length ){results.push(connection);}
@@ -107,6 +113,21 @@ class Board{
 		connection = this.propogateConnection( x,y, 0,-1 );
 		if( connection.length ){results.push(connection);}
 		return results;
+	}
+	clearVisitedList(){
+		for( let piece of this.visitedList ){
+			piece.visited = false;
+		}
+		this.visitedList = [];
+	}
+	depthMapSetPlayer( depthMap, player ){
+		var that = this;
+		Object.keys(depthMap).forEach(function (key) {
+			let pieces = depthMap[key];
+			for( let p of pieces ){
+				that.getPieceAt(p.x,p.y).player = player;
+			}
+		});
 	}
 	propogationArraysToDelayMap( nestedArrays, depthMap, depth ){
 		if( depthMap.length <= depth ){
@@ -120,6 +141,26 @@ class Board{
 			}
 		}
 		return depthMap;
+	}
+	applyConnection( x, y ){
+		this.clearVisitedList();
+		let player = this.getPieceAt(x,y).player;
+		let dMap = [[]];
+		let depthMap = this.propogationArraysToDelayMap( this.propogateFrom(x,y), dMap, 0 );
+		console.info( depthMap );
+		this.depthMapSetPlayer( depthMap, player );
+		return depthMap;
+	}
+	propogationArraysCountPieces( nestedArrays ){
+		let count = 0;
+		for( let value of nestedArrays ){
+			if( value instanceof Point ){
+				count += 1;
+			}else{
+				count += this.propogationArraysCountPieces( value );
+			}
+		}
+		return count;
 	}
 	getPieceAt( x, y ){
 		return this.grid[y][x];
@@ -195,6 +236,7 @@ class Board{
 	}
 }
 
+
 $(function(){
 	let PLAYER_COLORS = {};
 	PLAYER_COLORS[PLAYERS.A] = '#F00';
@@ -203,8 +245,8 @@ $(function(){
 	PLAYER_COLORS[PLAYERS.D] = '#BB0';
 	PLAYER_COLORS[PLAYERS.NONE] = '#888';
 
-	let w = 15;
-	let h = 15;
+	let w = 10;
+	let h = 10;
 
 	let b = new Board(w,h);
 	b.generate();
@@ -212,26 +254,13 @@ $(function(){
 	b.getPieceAt(w-1,h-1).player = PLAYERS.B;
 	b.getPieceAt(0,h-1).player = PLAYERS.C;
 	b.getPieceAt(w-1,0).player = PLAYERS.D;
-	b.propogateFrom(0,0);
-	b.propogateFrom(w-1,h-1);
-	b.propogateFrom(0,h-1);
-	b.propogateFrom(w-1,0);
+	b.applyConnection(0,0);
+	b.applyConnection(w-1,h-1);
+	b.applyConnection(0,h-1);
+	b.applyConnection(w-1,0);
 	$('#game').html( b.asHtmlString() );
 	$('#style-holder').html( '<style>'+b.generateCss()+'</style>' );
 
-	function copyBoard(b){
-		let b2 = new Board(b.width,b.height);
-		b2.generate();
-		for( let y=0, h=b.height; y<h; y+=1 ){
-			for( let x=0, w=b.width; x<w; x+=1 ){
-				b2.grid[y][x] = new Piece( );
-				b2.grid[y][x].player = b.grid[y][x].player;
-				b2.grid[y][x].direction = b.grid[y][x].direction;
-			}
-		}
-		return b2;
-	}
-	
 	for( let y=0, h=b.height; y<h; y+=1 ){
 		for( let x=0, w=b.width; x<w; x+=1 ){
 			let piece = b.getPieceAt(x,y);
@@ -265,11 +294,8 @@ $(function(){
 			// when the rotation animation finishes, update the board state
 			complete: function(){
 				// New
-				let b2 = copyBoard( b );
-				let propogationArray = b.activatePieceAt( x, y );
-				let depthMap = [[]];
-				console.info( b.propogationArraysToDelayMap( propogationArray, depthMap, 0 ) );
-				// 
+				b.activatePieceAt(x,y);
+				let depthMap = b.applyConnection(x,y);
 				for( let depth = 0, maxDepth = depthMap.length; depth < maxDepth; depth += 1 ){
 					let points = depthMap[depth];
 					for( let point of points ){
@@ -299,20 +325,10 @@ $(function(){
 						});
 					}
 				}
-				// Old
-				/*
-				b.activatePieceAt( x, y );
-				$('#game').html( b.asHtmlString() );
-				for( let y=0, h=b.height; y<h; y+=1 ){
-					for( let x=0, w=b.width; x<w; x+=1 ){
-						anime.set('#piece-'+x+'-'+y, {
-							rotate: b.getPieceAt(x,y).direction
-						});
-					}
-				}
-				*/
 			}
 		});
 	});
 });
 
+// TODO: simplify direction infomation (ie remove no-longer-used code)
+// TODO: make it easy to copy data structures (it seems more maintainable if you copy+augment simple data structures rather than creating a large one)
