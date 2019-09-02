@@ -51,7 +51,6 @@ class Board{
 		this.visitedList = [];
 		this.generate();
 	}
-	
 	generate(){
 		// https://stackoverflow.com/questions/5501581/javascript-new-arrayn-and-array-prototype-map-weirdness
 		let rows = (new Array(this.height)).fill(undefined).map( _ => new Array(this.width) );
@@ -61,6 +60,9 @@ class Board{
 			}
 		}
 		this.grid = rows;
+	}
+	getPieceAt( x, y ){
+		return this.grid[y][x];
 	}
 	areConnected( x1, y1, x2, y2 ){
 		let dx = x2 - x1;
@@ -83,42 +85,13 @@ class Board{
 		}
 		return false;
 	}
-	propogateConnection(x,y,dx,dy){
-		// let player = this.getPieceAt(x,y).player;
-		if( x+dx < 0 ){ return []; }
-		if( this.width <= x+dx ){ return []; }
-		if( y+dy < 0 ){ return []; }
-		if( this.height <= y+dy ){ return []; }
-		if( this.areConnected(x,y,x+dx,y+dy) ){
-			let connected_piece = this.getPieceAt(x+dx,y+dy);
-			if( connected_piece.visited == false ){
-				return this.propogateFrom(x+dx,y+dy);
-			}
-		}
-		return [];
-	}
-	propogateFrom(x,y){
-		// Remember that we've been to this piece
-		let piece = this.getPieceAt(x,y);
-		piece.visited = true;
-		this.visitedList.push( piece );
-		// Check the surronding 4 pieces (N,S,E,W)
-		let results = [ new Point(x,y) ];
-		let connection = this.propogateConnection( x,y, 1, 0 );
-		if( connection.length ){results.push(connection);}
-		connection = this.propogateConnection( x,y,-1, 0 );
-		if( connection.length ){results.push(connection);}
-		connection = this.propogateConnection( x,y, 0, 1 );
-		if( connection.length ){results.push(connection);}
-		connection = this.propogateConnection( x,y, 0,-1 );
-		if( connection.length ){results.push(connection);}
-		return results;
-	}
-	clearVisitedList(){
-		for( let piece of this.visitedList ){
-			piece.visited = false;
-		}
-		this.visitedList = [];
+	getDepthMapFrom( x, y ){
+		this._clearVisitedList();
+		let dMap = [[]];
+		let propogationArray = this._propogateFrom(x,y);
+		let depthMap = this._propogationArraysToDepthMap( propogationArray, dMap, 0 );
+		this._clearVisitedList();
+		return depthMap;
 	}
 	depthMapSetPlayer( depthMap, player ){
 		var that = this;
@@ -129,7 +102,64 @@ class Board{
 			}
 		});
 	}
-	propogationArraysToDelayMap( nestedArrays, depthMap, depth ){
+	applyConnection( x, y ){
+		let depthMap = this.getDepthMapFrom( x, y );
+		let player = this.getPieceAt( x, y ).player;
+		this.depthMapSetPlayer( depthMap, player );
+		return depthMap;
+	}
+	activatePieceAt( x, y ){
+		let piece = this.grid[y][x];
+		piece.direction += 90;
+		return this._propogateFrom(x,y);
+	}
+
+	_propogateConnection(x,y,dx,dy){
+		// let player = this.getPieceAt(x,y).player;
+		if( x+dx < 0 ){ return []; }
+		if( this.width <= x+dx ){ return []; }
+		if( y+dy < 0 ){ return []; }
+		if( this.height <= y+dy ){ return []; }
+		if( this.areConnected(x,y,x+dx,y+dy) ){
+			let connected_piece = this.getPieceAt(x+dx,y+dy);
+			if( connected_piece.visited == false ){
+				return this._propogateFrom(x+dx,y+dy);
+			}
+		}
+		return [];
+	}
+	
+	_propogateFrom(x,y){
+		// Remember that we've been to this piece
+		let piece = this.getPieceAt(x,y);
+		piece.visited = true;
+		this.visitedList.push( piece );
+		
+		// Always add this point to the results
+		let results = [ new Point(x,y) ];
+		
+		// Check the surronding 4 pieces (N,S,E,W)
+		// If there are any results then add them to current results
+		let connection = [];
+		connection = this._propogateConnection( x,y, 1, 0 );
+		if( connection.length ){results.push(connection);}
+		connection = this._propogateConnection( x,y,-1, 0 );
+		if( connection.length ){results.push(connection);}
+		connection = this._propogateConnection( x,y, 0, 1 );
+		if( connection.length ){results.push(connection);}
+		connection = this._propogateConnection( x,y, 0,-1 );
+		if( connection.length ){results.push(connection);}
+		
+		return results;
+	}
+	
+	_clearVisitedList(){
+		for( let piece of this.visitedList ){
+			piece.visited = false;
+		}
+		this.visitedList = [];
+	}
+	_propogationArraysToDepthMap( nestedArrays, depthMap, depth ){
 		if( depthMap.length <= depth ){
 			depthMap.push([]);
 		}
@@ -137,58 +167,48 @@ class Board{
 			if( value instanceof Point ){
 				depthMap[depth].push( value );
 			}else{
-				this.propogationArraysToDelayMap( value, depthMap, depth+1 );
+				this._propogationArraysToDepthMap( value, depthMap, depth+1 );
 			}
 		}
 		return depthMap;
 	}
-	applyConnection( x, y ){
-		this.clearVisitedList();
-		let player = this.getPieceAt(x,y).player;
-		let dMap = [[]];
-		let depthMap = this.propogationArraysToDelayMap( this.propogateFrom(x,y), dMap, 0 );
-		this.depthMapSetPlayer( depthMap, player );
-		return depthMap;
+
+}
+
+class BoardAnalyzer {
+	constructor( board ){
+		this.board = this.copyBoard(board);
+		this.width = this.board.width;
+		this.height = this.board.height;
 	}
-	propogationArraysCountPieces( nestedArrays ){
-		let count = 0;
-		for( let value of nestedArrays ){
-			if( value instanceof Point ){
-				count += 1;
-			}else{
-				count += this.propogationArraysCountPieces( value );
+	copyBoard(b){
+		let b2 = new Board(b.width,b.height);
+		b2.generate();
+		for( let y=0, h=b.height; y<h; y+=1 ){
+			for( let x=0, w=b.width; x<w; x+=1 ){
+				b2.grid[y][x] = new Piece( );
+				b2.grid[y][x].player = b.grid[y][x].player;
+				b2.grid[y][x].direction = b.grid[y][x].direction;
 			}
 		}
-		return count;
+		return b2;
 	}
-	getPieceAt( x, y ){
-		return this.grid[y][x];
+}
+
+class BoardHtmlRender extends BoardAnalyzer {
+	constructor( board ){
+		super( board );
 	}
-	activatePieceAt( x, y ){
-		let piece = this.grid[y][x];
-		piece.direction += 90;
-		return this.propogateFrom(x,y);
-	}
-	asString(){
-		let rows = new Array(this.height);
-		for( let y=0, h=this.height; y<h; y+=1 ){
-			let row = new Array(this.width);
-			for( let x=0, w=this.width; x<w; x+=1 ){
-				// This can be modified to make other visualizations
-				row[x] = this.grid[y][x].asString();
-			}
-			rows[y] = row.join('');
-		}
-		return rows.join('\n');
-	}
+	
 	asHtmlString(){
 		let rows = new Array(this.height);
 		for( let y=0, h=this.height; y<h; y+=1 ){
 			let row = new Array(this.width);
 			for( let x=0, w=this.width; x<w; x+=1 ){
 				// This can be modified to make other visualizations
-				let player = this.grid[y][x].player;
-				let direction = this.grid[y][x].direction;
+				let piece = this.board.getPieceAt(x,y);
+				let player = piece.player;
+				let direction = piece.direction;
 				let dom = '';
 				dom += '<div id="grid-space-'+x+'-'+y+'" class="grid-space '+player+'" data-xy="'+x+','+y+'">';
 				dom += '<div id="piece-'+x+'-'+y+'" class="piece '+player+'">';
@@ -235,26 +255,6 @@ class Board{
 	}
 }
 
-class BoardAnalyzer {
-	constructor( board ){
-		this.board = this.copyBoard(board);
-		this.width = this.board.width;
-		this.height = this.board.height;
-	}
-	copyBoard(b){
-		let b2 = new Board(b.width,b.height);
-		b2.generate();
-		for( let y=0, h=b.height; y<h; y+=1 ){
-			for( let x=0, w=b.width; x<w; x+=1 ){
-				b2.grid[y][x] = new Piece( );
-				b2.grid[y][x].player = b.grid[y][x].player;
-				b2.grid[y][x].direction = b.grid[y][x].direction;
-			}
-		}
-		return b2;
-	}
-}
-
 class BoardAnalyzerChainSize extends BoardAnalyzer{
 	// This does not work as expected because the propogation stops when the same color is reached
 	// So when analyzing chain sizes the chains will always connect to the same color so they will
@@ -270,9 +270,12 @@ class BoardAnalyzerChainSize extends BoardAnalyzer{
 		this.data = rows;
 	}
 	computeChainSizeAt(x,y){
-		this.board.clearVisitedList();
-		let propogationArray = this.board.propogateFrom(x,y);
-		return this.board.propogationArraysCountPieces(propogationArray);
+		let count = 0;
+		let depthMap = this.board.getDepthMapFrom( x, y );
+		for( let d = 0, dMax = depthMap.length; d<dMax; d+=1 ){
+			count += depthMap[d].length;
+		}
+		return count;
 	}
 }
 
@@ -297,8 +300,9 @@ $(function(){
 	b.applyConnection(w-1,h-1);
 	b.applyConnection(0,h-1);
 	b.applyConnection(w-1,0);
-	$('#game').html( b.asHtmlString() );
-	$('#style-holder').html( '<style>'+b.generateCss()+'</style>' );
+	let boarderRender = new BoardHtmlRender(b);
+	$('#game').html( boarderRender.asHtmlString() );
+	$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
 
 	var b2 = new BoardAnalyzerChainSize(b);
 	console.info( b2.data );
@@ -349,7 +353,9 @@ $(function(){
 								if( anime.running.length == 0 ){
 									// after all the other stuff is done:
 									// update board state (rotations)
-									$('#game').html( b.asHtmlString() );
+									let boarderRender = new BoardHtmlRender(b);
+									$('#game').html( boarderRender.asHtmlString() );
+									//$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
 									for( let y=0, h=b.height; y<h; y+=1 ){
 										for( let x=0, w=b.width; x<w; x+=1 ){
 											let p = b.getPieceAt(x,y);
@@ -373,4 +379,3 @@ $(function(){
 });
 
 // TODO: simplify direction infomation (ie remove no-longer-used code)
-// TODO: make it easy to copy data structures (it seems more maintainable if you copy+augment simple data structures rather than creating a large one)
