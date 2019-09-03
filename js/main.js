@@ -1,6 +1,9 @@
 'use strict';
 
 $(function(){
+	// Some interesting effects:
+	//  a) making the player color the same as the background (looks like a maze)
+	//  b) making the non-used colors the same as the background (everything is a guess)
 	let PLAYER_COLORS = {};
 	PLAYER_COLORS[PLAYERS.A] = '#F00';
 	PLAYER_COLORS[PLAYERS.B] = '#00F';
