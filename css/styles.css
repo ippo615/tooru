@@ -6,8 +6,17 @@
 	top:0;
 	left:0;
 }
+#overlay {
+	z-index: 1;
+}
 .overlay {
 	pointer-events: none;
+}
+.overlay .grid-space {
+	background: none;
+	text-align: center;
+	line-height: 32px;
+	font-size: 12px;
 }
 /*
 .board {

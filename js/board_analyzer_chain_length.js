@@ -19,5 +19,18 @@ class BoardAnalyzerChainLength extends BoardAnalyzer{
 		}
 		return count;
 	}
+	asHtmlString(){
+		let rows = new Array(this.height);
+		for( let y=0, h=this.height; y<h; y+=1 ){
+			let row = new Array(this.width);
+			for( let x=0, w=this.width; x<w; x+=1 ){
+				let dom = '';
+				dom += '<div class="grid-space">'+this.data[y][x]+'</div>';
+				row[x] = dom;
+			}
+			rows[y] = row.join('');
+		}
+		return rows.join('\n');
+	}
 }
 

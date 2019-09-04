@@ -1,6 +1,9 @@
 'use strict';
 
 $(function(){
+	// Some fun gameplay ideas:
+	//  Players rotate pieces until they can no longer capture but
+	//  they can only rotate the piece at the end of their last chain
 	// Some interesting effects:
 	//  a) making the player color the same as the background (looks like a maze)
 	//  b) making the non-used colors the same as the background (everything is a guess)
@@ -120,25 +123,39 @@ $(function(){
 								// This means that we should check if the number of running
 								// animations is equal to the length of the last group of the
 								// depthMap.
-								if( anime.running.length == depthMap[maxDepth-1].length ){
-									// after all the other stuff is done:
-									// update board state (rotations)
-									let boarderRender = new BoardRenderHtml(b);
-									$('#game').html( boarderRender.asHtmlString() );
-									$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
-									for( let y=0, h=b.height; y<h; y+=1 ){
-										for( let x=0, w=b.width; x<w; x+=1 ){
-											let p = b.getPieceAt(x,y);
-											anime.set( '#piece-'+x+'-'+y, {
-												rotate: p.direction,
-												background: PLAYER_CONNECTOR_COLORS[p.player]
-											});
-											anime.set( '#grid-space-'+x+'-'+y, {
-												background: PLAYER_COLORS[p.player]
-											});
+								// Never mind. That doesnt work. I'll need to add a delay and
+								// debouncer on it. 10ms? after complete -> check if 0
+								console.info('a');
+								console.info( anime.running.length );
+								setTimeout(function(){
+									console.info('x');
+									console.info(anime.running.length);
+									if( anime.running.length == 0 ){
+										console.info('b');
+										// after all the other stuff is done:
+										// update board state (rotations)
+										let boarderRender = new BoardRenderHtml(b);
+										$('#game').html( boarderRender.asHtmlString() );
+										$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
+										for( let y=0, h=b.height; y<h; y+=1 ){
+											for( let x=0, w=b.width; x<w; x+=1 ){
+												let p = b.getPieceAt(x,y);
+												anime.set( '#piece-'+x+'-'+y, {
+													rotate: p.direction,
+													background: PLAYER_CONNECTOR_COLORS[p.player]
+												});
+												anime.set( '#grid-space-'+x+'-'+y, {
+													background: PLAYER_COLORS[p.player]
+												});
+											}
 										}
+										console.info('whwh');
+										// Add an overlay showing chain lengths
+										let boardLengths = new BoardAnalyzerChainLength( b );
+										console.info( boardLengths );
+										$('#overlay').html( boardLengths.asHtmlString() );
 									}
-								}
+								}, 200);
 							}
 						});
 					}
