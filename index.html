@@ -9,13 +9,16 @@
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
         
         <link rel="stylesheet" href="css/styles.css">
-        <script src="js/modernizr-2.8.3.min.js"></script>
+        <script src="lib/modernizr.min.js"></script>
     </head>
     <body>
-        <p>The Game:</p>
 		<div id="style-holder"></div>
-		<div id="game" class="board">
-			<div class="grid-space"><div class="piece"></div></div>
+		
+		<div id="board-stack">
+			<div id="game" class="board">
+				<div class="grid-space"><div class="piece"></div></div>
+			</div>
+			<div id="overlay" class="board overlay"></div>
 		</div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>

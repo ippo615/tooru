@@ -84,7 +84,7 @@ $(function(){
 	// When a piece is clicked:
 	//  1. rotate it 90 degrees clockwise
 	//  2. propogate its color to all the connected pieces
-	$('.board').on('click','.grid-space',function(e){
+	$('#game').on('click','.grid-space',function(e){
 		let target = $(e.target).closest('.grid-space');
 		let piece = target.find('.piece')[0];
 		let grid_xy = target.data('xy').split(',');
@@ -125,7 +125,7 @@ $(function(){
 									// update board state (rotations)
 									let boarderRender = new BoardRenderHtml(b);
 									$('#game').html( boarderRender.asHtmlString() );
-									//$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
+									$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
 									for( let y=0, h=b.height; y<h; y+=1 ){
 										for( let x=0, w=b.width; x<w; x+=1 ){
 											let p = b.getPieceAt(x,y);

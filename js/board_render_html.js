@@ -37,7 +37,6 @@ class BoardRenderHtml extends BoardAnalyzer {
 		css += '	grid-template-columns: '+(new Array(this.width)).fill(gridSize).join(' ')+';';
 		css += '	grid-template-rows: '+(new Array(this.height)).fill(gridSize).join(' ')+';';
 		css += '	grid-gap: 10px;';
-		css += '	background-color: #FFF;';
 		css += '	padding: 10px;';
 		css += '}';
 		css += '.grid-space {';

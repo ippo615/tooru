@@ -1,4 +1,14 @@
-
+.board-stack {
+	position: relative;
+}
+.board {
+	position: absolute;
+	top:0;
+	left:0;
+}
+.overlay {
+	pointer-events: none;
+}
 /*
 .board {
 	display: grid;
