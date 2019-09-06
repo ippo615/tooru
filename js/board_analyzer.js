@@ -31,3 +31,7 @@ class BoardAnalyzer {
 	}
 }
 
+// Other analyzers to be built:
+// - how many neighbors (N,S,E,W) pieces are the same player?
+// - how many piece can capture this one? -- i think this a re-framing of the next one
+// - if this piece is activated - how long of a chain will it create? (newly? or should that be a separate processing step)

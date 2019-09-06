@@ -149,11 +149,20 @@ $(function(){
 												});
 											}
 										}
-										console.info('whwh');
+
 										// Add an overlay showing chain lengths
-										let boardLengths = new BoardAnalyzerChainLength( b );
-										console.info( boardLengths );
-										$('#overlay').html( boardLengths.asHtmlString() );
+										//console.time('chain analyzer');
+										//let boardLengths = new BoardAnalyzerChainLength( b );
+										//console.timeEnd('chain analyzer');
+										//$('#overlay').html( boardLengths.asHtmlString() );
+										
+										// Add an overlay showing impacts of next move
+										console.time('count analyzer');
+										let boardAnalysis  = new BoardAnalyzerCount( b );
+										console.timeEnd('count analyzer');
+										$('#overlay').html( boardAnalysis.asHtmlString() );
+										
+										// Show counts of players
 										let counterBoard = new BoardAnalyzer( b );
 										console.info( 'Player A: ' + counterBoard.getPlayerCount(PLAYERS.A) );
 										console.info( 'Player B: ' + counterBoard.getPlayerCount(PLAYERS.B) );
