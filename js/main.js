@@ -125,56 +125,61 @@ $(function(){
 								// depthMap.
 								// Never mind. That doesnt work. I'll need to add a delay and
 								// debouncer on it. 10ms? after complete -> check if 0
-								console.info('a');
-								console.info( anime.running.length );
-								setTimeout(function(){
-									console.info('x');
-									console.info(anime.running.length);
-									if( anime.running.length == 0 ){
-										console.info('b');
-										// after all the other stuff is done:
-										// update board state (rotations)
-										let boarderRender = new BoardRenderHtml(b);
-										$('#game').html( boarderRender.asHtmlString() );
-										$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
-										for( let y=0, h=b.height; y<h; y+=1 ){
-											for( let x=0, w=b.width; x<w; x+=1 ){
-												let p = b.getPieceAt(x,y);
-												anime.set( '#piece-'+x+'-'+y, {
-													rotate: p.direction,
-													background: PLAYER_CONNECTOR_COLORS[p.player]
-												});
-												anime.set( '#grid-space-'+x+'-'+y, {
-													background: PLAYER_COLORS[p.player]
-												});
-											}
-										}
-
-										// Add an overlay showing chain lengths
-										//console.time('chain analyzer');
-										//let boardLengths = new BoardAnalyzerChainLength( b );
-										//console.timeEnd('chain analyzer');
-										//$('#overlay').html( boardLengths.asHtmlString() );
-										
-										// Add an overlay showing impacts of next move
-										console.time('count analyzer');
-										let boardAnalysis  = new BoardAnalyzerCount( b );
-										console.timeEnd('count analyzer');
-										$('#overlay').html( boardAnalysis.asHtmlString() );
-										
-										// Show counts of players
-										let counterBoard = new BoardAnalyzer( b );
-										console.info( 'Player A: ' + counterBoard.getPlayerCount(PLAYERS.A) );
-										console.info( 'Player B: ' + counterBoard.getPlayerCount(PLAYERS.B) );
-										console.info( 'Player C: ' + counterBoard.getPlayerCount(PLAYERS.C) );
-										console.info( 'Player D: ' + counterBoard.getPlayerCount(PLAYERS.D) );
-										console.info( 'Player -: ' + counterBoard.getPlayerCount(PLAYERS.NONE) );
-									}
-								}, 200);
 							}
 						});
 					}
 				}
+				anime({
+					targets: {
+						just_so_i_know_when_stuff_ends: '0%'
+					},
+					just_so_i_know_when_stuff_ends: '100%',
+					delay: 75*(depthMap.length+1),
+					complete: function(){
+						console.info('x');
+						console.info(anime.running.length);
+						if( anime.running.length <= 1 ){
+							console.info('b');
+							// after all the other stuff is done:
+							// update board state (rotations)
+							let boarderRender = new BoardRenderHtml(b);
+							$('#game').html( boarderRender.asHtmlString() );
+							$('#style-holder').html( '<style>'+boarderRender.generateCss()+'</style>' );
+							for( let y=0, h=b.height; y<h; y+=1 ){
+								for( let x=0, w=b.width; x<w; x+=1 ){
+									let p = b.getPieceAt(x,y);
+									anime.set( '#piece-'+x+'-'+y, {
+										rotate: p.direction,
+										background: PLAYER_CONNECTOR_COLORS[p.player]
+									});
+									anime.set( '#grid-space-'+x+'-'+y, {
+										background: PLAYER_COLORS[p.player]
+									});
+								}
+							}
+
+							// Add an overlay showing chain lengths
+							//console.time('chain analyzer');
+							//let boardLengths = new BoardAnalyzerChainLength( b );
+							//console.timeEnd('chain analyzer');
+							//$('#overlay').html( boardLengths.asHtmlString() );
+							
+							// Add an overlay showing impacts of next move
+							console.time('count analyzer');
+							let boardAnalysis  = new BoardAnalyzerCount( b );
+							console.timeEnd('count analyzer');
+							$('#overlay').html( boardAnalysis.asHtmlString() );
+							
+							// Show counts of players
+							let counterBoard = new BoardAnalyzer( b );
+							console.info( 'Player A: ' + counterBoard.getPlayerCount(PLAYERS.A) );
+							console.info( 'Player B: ' + counterBoard.getPlayerCount(PLAYERS.B) );
+							console.info( 'Player C: ' + counterBoard.getPlayerCount(PLAYERS.C) );
+							console.info( 'Player D: ' + counterBoard.getPlayerCount(PLAYERS.D) );
+							console.info( 'Player -: ' + counterBoard.getPlayerCount(PLAYERS.NONE) );
+						}
+					}
+				});
 			}
 		});
 	});
