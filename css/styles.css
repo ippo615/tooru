@@ -17,6 +17,8 @@
 	text-align: center;
 	line-height: 32px;
 	font-size: 12px;
+	text-shadow: 0 0 4px black;
+	color: white;
 }
 /*
 .board {
