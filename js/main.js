@@ -154,6 +154,12 @@ $(function(){
 										let boardLengths = new BoardAnalyzerChainLength( b );
 										console.info( boardLengths );
 										$('#overlay').html( boardLengths.asHtmlString() );
+										let counterBoard = new BoardAnalyzer( b );
+										console.info( 'Player A: ' + counterBoard.getPlayerCount(PLAYERS.A) );
+										console.info( 'Player B: ' + counterBoard.getPlayerCount(PLAYERS.B) );
+										console.info( 'Player C: ' + counterBoard.getPlayerCount(PLAYERS.C) );
+										console.info( 'Player D: ' + counterBoard.getPlayerCount(PLAYERS.D) );
+										console.info( 'Player -: ' + counterBoard.getPlayerCount(PLAYERS.NONE) );
 									}
 								}, 200);
 							}
