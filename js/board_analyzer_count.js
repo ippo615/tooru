@@ -27,7 +27,11 @@ class BoardAnalyzerCount extends BoardAnalyzer{
 			let row = new Array(this.width);
 			for( let x=0, w=this.width; x<w; x+=1 ){
 				let dom = '';
-				dom += '<div class="grid-space">'+this.data[y][x]+'</div>';
+				if( this.board.getPieceAt(x,y).player == PLAYERS.NONE ){
+					dom += '<div class="grid-space"></div>';
+				}else{
+					dom += '<div class="grid-space">'+this.data[y][x]+'</div>';
+				}
 				row[x] = dom;
 			}
 			rows[y] = row.join('');

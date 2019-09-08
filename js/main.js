@@ -24,8 +24,8 @@ $(function(){
 	PLAYER_CONNECTOR_COLORS[PLAYERS.NONE] = '#888';
 	
 
-	let w = 10;
-	let h = 10;
+	let w = 20;
+	let h = 20;
 
 	// Create a new board with each piece pointing in a random direction
 	let b = new Board(w,h);
@@ -170,13 +170,21 @@ $(function(){
 							console.timeEnd('count analyzer');
 							$('#overlay').html( boardAnalysis.asHtmlString() );
 							
+							// Add an overlay showing impacts of next move
+							//console.time('turns analyzer');
+							//let boardAnalysis  = new BoardAnalyzerTurnsToCapture( b );
+							//console.timeEnd('turns analyzer');
+							//$('#overlay').html( boardAnalysis.asHtmlString() );
+							
 							// Show counts of players
+							/*
 							let counterBoard = new BoardAnalyzer( b );
 							console.info( 'Player A: ' + counterBoard.getPlayerCount(PLAYERS.A) );
 							console.info( 'Player B: ' + counterBoard.getPlayerCount(PLAYERS.B) );
 							console.info( 'Player C: ' + counterBoard.getPlayerCount(PLAYERS.C) );
 							console.info( 'Player D: ' + counterBoard.getPlayerCount(PLAYERS.D) );
 							console.info( 'Player -: ' + counterBoard.getPlayerCount(PLAYERS.NONE) );
+							*/
 						}
 					}
 				});
