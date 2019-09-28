@@ -63,6 +63,7 @@ $(function(){
 	// Debugging to make sure chain analyzers work
 	var b2 = new BoardAnalyzerChainLength(b);
 	console.info( b2.data );
+	var startAnimationDelta = 100;
 
 	// Initial animation to show the board being setup/created
 	for( let y=0, h=b.height; y<h; y+=1 ){
@@ -73,7 +74,7 @@ $(function(){
 				rotate: piece.direction,
 				background: PLAYER_CONNECTOR_COLORS[piece.player],
 				duration: 1200,
-				delay: x*30//x*500+Math.random()*500
+				delay: x*startAnimationDelta+Math.random()*startAnimationDelta
 			});
 			anime.set( '#grid-space-'+x+'-'+y, {
 				background: PLAYER_COLORS[piece.player],

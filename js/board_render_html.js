@@ -26,12 +26,37 @@ class BoardRenderHtml extends BoardAnalyzer {
 	}
 	generateCss(){
 		let gridSize = '32px'; // chosen
-		let pieceHeight = '8px'; // chosen
-		let pieceLength = '46px'; // chosen
-		let pieceTop = '12px'; // (gridSize - pieceHeight)*0.5
+		let connectorWidth = '8px'; // chosen
+		let connectorLength = '46px'; // chosen
+		let pieceTop = '12px'; // (gridSize - connectorWidth)*0.5
 		let pieceLeft = '16px'; // gridSize * 0.5
+		let overlayFontSize = '12px'; // chosen
 		
 		let css = '';
+		// The following styles are for overlays of information that should go on top of a board
+		css += '.board-stack {';
+		css += '	position: relative;';
+		css += '}';
+		css += '.board {';
+		css += '	position: absolute;';
+		css += '	top:0;';
+		css += '	left:0;';
+		css += '}';
+		css += '#overlay {';
+		css += '	z-index: 1;';
+		css += '}';
+		css += '.overlay {';
+		css += '	pointer-events: none;';
+		css += '}';
+		css += '.overlay .grid-space {';
+		css += '	background: none;';
+		css += '	text-align: center;';
+		css += '	line-height: '+gridSize+';';
+		css += '	font-size: '+overlayFontSize+';';
+		css += '	text-shadow: 0 0 4px black;';
+		css += '	color: white;';
+		css += '}';
+		// Stuff that only affects the board (not the overlays)
 		css += '.board {';
 		css += '	display: grid;';
 		css += '	grid-template-columns: '+(new Array(this.width)).fill(gridSize).join(' ')+';';
@@ -51,8 +76,8 @@ class BoardRenderHtml extends BoardAnalyzer {
 		css += '	border-radius: 4px;';
 		css += '	left: '+pieceLeft+';';
 		css += '	top: '+pieceTop+';';
-		css += '	width: '+pieceLength+';';
-		css += '	height: '+pieceHeight+';';
+		css += '	width: '+connectorLength+';';
+		css += '	height: '+connectorWidth+';';
 		css += '	transform-origin: left center;';
 		css += '	z-index: 1;';
 		css += '	background-color: #666;';
