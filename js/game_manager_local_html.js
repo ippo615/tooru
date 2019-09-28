@@ -66,10 +66,7 @@ class GameManagerLocalHtml {
 					just_so_i_know_when_stuff_ends: '100%',
 					delay: 75*(depthMap.length+1),
 					complete: function(){
-						console.info('x');
-						console.info(anime.running.length);
 						if( anime.running.length <= 1 ){
-							console.info('b');
 							// after all the other stuff is done:
 							// update board state (rotations)
 							let boarderRender = new BoardRenderHtml(b);
@@ -108,7 +105,13 @@ class GameManagerLocalHtml {
 		// TODO: if no valid moved -> end game OR skip to next player
 	}
 	_setupTurn(){
-		this.inputManagers[this._turnIndex].setupInput();
+		// I add a setTimeout here because without it the turns would be infinitely
+		// recursive (consider the case when you have all AI inputs that handle
+		// computations immediately).
+		let that = this;
+		setTimeout(function(){
+			that.inputManagers[that._turnIndex].setupInput();
+		}, 10);
 	}
 
 }

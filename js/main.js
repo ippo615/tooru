@@ -83,9 +83,9 @@ $(function(){
 	
 	let game = new GameManagerLocalHtml(b);
 	game.addInputManager(new InputManagerLocalHtmlPlayer(PLAYERS.A, game, '#game'));
-	game.addInputManager(new InputManagerLocalHtmlPlayer(PLAYERS.B, game, '#game'));
-	game.addInputManager(new InputManagerLocalHtmlPlayer(PLAYERS.C, game, '#game'));
-	game.addInputManager(new InputManagerLocalHtmlPlayer(PLAYERS.D, game, '#game'));
+	game.addInputManager(new InputManagerAiLevel0(PLAYERS.B, game, '#game'));
+	game.addInputManager(new InputManagerAiLevel0(PLAYERS.C, game, '#game'));
+	game.addInputManager(new InputManagerAiLevel0(PLAYERS.D, game, '#game'));
 	game.start();
 
 	// Listen to this next time:

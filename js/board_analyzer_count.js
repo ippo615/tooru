@@ -1,12 +1,20 @@
 'use strict';
 
 class BoardAnalyzerCount extends BoardAnalyzer{
-	constructor( board ){
+	constructor( board, passFilter, failFilterValue ){
 		super( board );
 		let rows = (new Array(this.height)).fill(undefined).map( _ => new Array(this.width) );
 		for( let y=0, h=this.height; y<h; y+=1 ){
 			for( let x=0, w=this.width; x<w; x+=1 ){
-				rows[y][x] = this.computeRotationAt(x,y);
+				if( passFilter ){
+					if( passFilter( board, x, y ) ){
+						rows[y][x] = this.computeRotationAt(x,y);
+					}else{
+						rows[y][x] = failFilterValue;
+					}
+				}else{
+					rows[y][x] = this.computeRotationAt(x,y);
+				}
 			}
 		}
 		this.data = rows;

@@ -6,6 +6,29 @@ class BoardAnalyzer {
 		this.width = this.board.width;
 		this.height = this.board.height;
 	}
+	getMaxValue( ){
+		// TODO: this.data is generally set by a subclass, maybe we should fill it with 0's in the constructor?
+		let valueMax = this.data[0][0];
+		for( let y=0, h=this.height; y<h; y+=1 ){
+			for( let x=0, w=this.width; x<w; x+=1 ){
+				if( this.data[y][x] > valueMax ){
+					valueMax = this.data[y][x];
+				}
+			}
+		}
+		return valueMax;
+	}
+	getLocationsWithValue( value ){
+		let results = [];
+		for( let y=0, h=this.height; y<h; y+=1 ){
+			for( let x=0, w=this.width; x<w; x+=1 ){
+				if( this.data[y][x] == value ){
+					results.push([x,y]);
+				}
+			}
+		}
+		return results;
+	}
 	getPlayerCount( player ){
 		let count = 0;
 		for( let y=0, h=this.height; y<h; y+=1 ){
