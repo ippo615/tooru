@@ -102,6 +102,21 @@ class GameManagerLocalHtml {
 	
 	_finishTurn(){
 		this._turnIndex = (this._turnIndex+1) % this.inputManagers.length;
+		
+		// AI-DEBUGGING STUFF -----
+		let canvasRender = new BoardRenderCanvas(
+			this.board,
+			[ this.inputManagers[0].player ],
+			[
+				this.inputManagers[1].player,
+				this.inputManagers[2].player,
+				this.inputManagers[3].player,
+			],
+			[ PLAYERS.NONE ]
+		);
+		document.getElementById('debug-area').appendChild( canvasRender.asCanvas() );
+		// AI-DEBUGGING STUFF -----
+		
 		// TODO: if no valid moved -> end game OR skip to next player
 	}
 	_setupTurn(){
